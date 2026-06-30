@@ -43,7 +43,7 @@ textarea{width:100%;height:70px;margin-bottom:8px;}
 <div class="card">
 <div class="helper">
 英語と日本語を入力 → 選択 → 問題生成<br>
-URLやコピーで保存できます
+URLで共有できます
 </div>
 
 <label>英語</label>
@@ -64,7 +64,10 @@ URLやコピーで保存できます
 </div>
 
 <div class="card">
+<h3>問題</h3>
+
 <label><input type="checkbox" id="showJP">日本語表示</label>
+
 <button class="btn orange" onclick="create()">問題生成</button>
 </div>
 
@@ -231,11 +234,11 @@ let html="";
 
 selectedQ.forEach((q,i)=>{
 html+=`
-<div class="card">
+<div class="card" onclick="this.querySelector('.jpHint')?.classList.toggle('show')">
 ${i+1}.
 ${q.text.replace("______",
 `<span class="blank" data-i="${i}">______</span>`)}
-${show?`<div class="jpHint show">${q.jp}</div>`:""}
+${show?`<div class="jpHint show">${q.jp}</div>`:`<div class="jpHint">${q.jp}</div>`}
 </div>`;
 });
 
