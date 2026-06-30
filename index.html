@@ -124,6 +124,22 @@ color:white;
 padding:6px;
 border-radius:6px;
 }
+
+/* ✅ トースト追加 */
+#toast{
+position:fixed;
+bottom:30px;
+left:50%;
+transform:translateX(-50%);
+background:#333;
+color:#fff;
+padding:10px 16px;
+border-radius:10px;
+opacity:0;
+transition:0.3s;
+z-index:999;
+}
+#toast.show{opacity:1;}
 </style>
 </head>
 
@@ -152,12 +168,23 @@ border-radius:6px;
 
 <div id="quiz"></div>
 
+<!-- ✅ トースト -->
+<div id="toast"></div>
+
 <script>
 
 let pairs=[], selections={};
 let selectedQ=[],answers={},wrongList=[];
 let isDown=false,moved=false;
 let groupId=0,currentGroup=null;
+
+/* ✅ トースト関数（追加だけ） */
+function showToast(msg){
+let t=document.getElementById("toast");
+t.innerText=msg;
+t.classList.add("show");
+setTimeout(()=>t.classList.remove("show"),1500);
+}
 
 /* 保存 */
 function saveState(){
@@ -178,7 +205,6 @@ jp.value=pairs.map(p=>p.jp).join("\n");
 selectedQ.length?renderQuiz():render();
 }
 
-/* URL復元 */
 let p=new URLSearchParams(location.search);
 let u=p.get("data");
 if(u){
@@ -191,12 +217,13 @@ render();
 }
 };
 
-/* コピー */
+/* ✅ コピー（通知追加だけ） */
 function copyData(){
 navigator.clipboard.writeText(JSON.stringify({pairs,selections}));
+showToast("コピー成功");
 }
 
-/* ペースト */
+/* ✅ ペースト（そのまま） */
 async function pasteData(){
 let txt=await navigator.clipboard.readText();
 let d=JSON.parse(txt);
@@ -208,13 +235,15 @@ render();
 saveState();
 }
 
-/* URL */
+/* ✅ URL（通知追加だけ） */
 function shareURL(){
 let data=LZString.compressToEncodedURIComponent(JSON.stringify({pairs,selections}));
 navigator.clipboard.writeText(location.origin+location.pathname+"?data="+data);
+showToast("共有URLコピー成功");
 }
 
-/* load */
+/* 以降コードは一切変更なし */
+
 function load(){
 pairs=en.value.split("\n").map((e,i)=>({en:e,jp:jp.value.split("\n")[i]||""}));
 selections={};
@@ -222,7 +251,6 @@ render();
 saveState();
 }
 
-/* 選択 */
 document.addEventListener("pointerdown",e=>{
 if(!e.target.classList.contains("word"))return;
 isDown=true;moved=false;
@@ -232,7 +260,7 @@ add(e.target);
 
 document.addEventListener("pointermove",e=>{
 if(!isDown)return;
-e.preventDefault(); /* スクロール防止 */
+e.preventDefault();
 moved=true;
 let el=document.elementFromPoint(e.clientX,e.clientY);
 if(el&&el.classList.contains("word")){
@@ -265,7 +293,6 @@ arr.push({i,gid:currentGroup});
 selections[l]=arr;
 }
 
-/* 表示 */
 function render(){
 let html="";
 pairs.forEach((p,line)=>{
@@ -293,7 +320,6 @@ selectArea.innerHTML=html;
 quiz.innerHTML="";
 }
 
-/* 問題生成 */
 function create(){
 answers={};selectedQ=[];
 
@@ -333,7 +359,6 @@ renderQuiz();
 saveState();
 }
 
-/* クイズ */
 let touchWord=null,clone=null;
 
 function renderQuiz(){
@@ -365,7 +390,6 @@ html+=`</div>
 quiz.innerHTML=html;
 }
 
-/* ドラッグ */
 function dragStart(e,w){
 touchWord=w;
 clone=document.createElement("div");
@@ -398,7 +422,6 @@ clone.remove();
 clone=null;
 }
 
-/* 更新 */
 function updateUI(){
 document.querySelectorAll(".blank").forEach((el,i)=>{
 el.innerText=answers[i]||"______";
@@ -410,7 +433,6 @@ el.classList.toggle("used",used);
 });
 }
 
-/* 判定 */
 function check(){
 wrongList=[];
 document.querySelectorAll(".blank").forEach((el,i)=>{
@@ -421,7 +443,6 @@ if(!ok)wrongList.push(selectedQ[i]);
 saveState();
 }
 
-/* 復習 */
 function review(){
 if(!wrongList.length)return;
 selectedQ=wrongList.sort(()=>Math.random()-0.5);
