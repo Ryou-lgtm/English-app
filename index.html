@@ -27,7 +27,24 @@ textarea{width:100%;height:70px;margin-bottom:8px;}
 .blank{display:inline-block;min-width:80px;border-bottom:3px solid black;}
 .jpHint{display:none;font-size:13px;color:#555;margin-top:4px;}
 .jpHint.show{display:block;}
-#vocabBox{position:sticky;bottom:0;background:#f3f4f6;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+
+/* ✅ 修正ここ */
+#vocabBox{
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#f3f4f6;
+padding:10px;
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:6px;
+z-index:10;
+}
+
+/* ✅ これ追加（隠れ防止） */
+#quiz{padding-bottom:140px;}
+
 .wordBox{padding:8px;border:1px solid #ccc;border-radius:8px;text-align:center;background:#fff;}
 .wordBox.used{opacity:0.3;}
 .correct{background:#86efac;}
