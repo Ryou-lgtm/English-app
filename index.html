@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<link rel="apple-touch-icon" href="IMG_2197.png">
+<link rel="apple-touch-icon" href="IMG_2197.png"> 
 <script src="https://cdn.jsdelivr.net/npm/lz-string@1.4.4/libs/lz-string.min.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -230,6 +230,7 @@ document.body.appendChild(clone);
 
 function dragMove(e){
 if(!clone)return;
+e.preventDefault();  <!-- ← 追加したのはここだけ -->
 let t=e.touches[0];
 clone.style.left=(t.clientX-30)+"px";
 clone.style.top=(t.clientY-20)+"px";
@@ -243,7 +244,6 @@ let target=document.elementFromPoint(t.clientX,t.clientY);
 if(target&&target.classList.contains("blank")){
 let i=+target.dataset.i;
 
-/* 既に使ってたら移動 */
 Object.keys(answers).forEach(k=>{
 if(answers[k]===touchWord)answers[k]=undefined;
 });
@@ -267,7 +267,6 @@ el.classList.toggle("used",used);
 });
 }
 
-/* 判定 */
 function check(){
 document.querySelectorAll(".blank").forEach((el,i)=>{
 let ok=el.innerText===selectedQ[i].ans;
