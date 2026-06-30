@@ -28,12 +28,17 @@ textarea{width:100%;height:70px;margin-bottom:8px;}
 .jpHint{display:none;font-size:13px;color:#555;margin-top:4px;}
 .jpHint.show{display:block;}
 
-/* ✅ 修正ここ */
+/* ✅ 元仕様：quiz内スクロール */
+#quiz{
+height:70vh;
+overflow:auto;
+padding-bottom:120px;
+}
+
+/* ✅ 元仕様：語群はこの中で固定 */
 #vocabBox{
-position:fixed;
+position:sticky;
 bottom:0;
-left:0;
-width:100%;
 background:#f3f4f6;
 padding:10px;
 display:grid;
@@ -41,9 +46,6 @@ grid-template-columns:repeat(3,1fr);
 gap:6px;
 z-index:10;
 }
-
-/* ✅ これ追加（隠れ防止） */
-#quiz{padding-bottom:140px;}
 
 .wordBox{padding:8px;border:1px solid #ccc;border-radius:8px;text-align:center;background:#fff;}
 .wordBox.used{opacity:0.3;}
