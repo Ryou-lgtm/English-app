@@ -9,136 +9,36 @@
 <style>
 body{font-family:sans-serif;background:#f3f4f6;padding:12px;}
 h2{margin-bottom:14px;}
-
-.bigWrap{
-background:#e5e7eb;
-padding:16px;
-border-radius:16px;
-margin-bottom:20px;
-}
-
-textarea{
-width:100%;
-height:80px;
-padding:10px;
-margin-bottom:10px;
-border-radius:10px;
-border:1px solid #ccc;
-background:#f9fafb;
-}
-
-.helper{
-background:#d1d5db;
-padding:10px;
-border-radius:10px;
-margin-bottom:12px;
-}
-
-.btn{
-width:100%;
-padding:14px;
-border:none;
-border-radius:12px;
-margin-top:8px;
-color:white;
-}
-
+.bigWrap{background:#e5e7eb;padding:16px;border-radius:16px;margin-bottom:20px;}
+textarea{width:100%;height:80px;padding:10px;margin-bottom:10px;border-radius:10px;border:1px solid #ccc;background:#f9fafb;}
+.helper{background:#d1d5db;padding:10px;border-radius:10px;margin-bottom:12px;}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;margin-top:8px;color:white;}
 .blue{background:#4f7bd9;}
 .copyBtn{background:#4fb07f;}
 .pasteBtn{background:#6868d4;}
 .urlBtn{background:#4a90c2;}
 .orange{background:#f59e0b;}
 .green{background:#16a34a;}
-
-.card{
-background:#fff;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
-}
-
-#selectArea{
-background:#e5e7eb;
-padding:15px;
-border-radius:12px;
-}
-
+.card{background:#fff;padding:15px;border-radius:12px;margin-bottom:15px;}
+#selectArea{background:#e5e7eb;padding:15px;border-radius:12px;}
 .line{margin-bottom:14px;}
-
-.word{
-display:inline-block;
-padding:6px 8px;
-margin:2px;
-border-radius:8px;
-cursor:pointer;
-}
-
+.word{display:inline-block;padding:6px 8px;margin:2px;border-radius:8px;cursor:pointer;}
 .single{background:#fde047;}
-
 .group{background:#fb923c;color:white;}
 .group.start{border-radius:8px 0 0 8px;}
 .group.end{border-radius:0 8px 8px 0;}
-
-.blank{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-min-width:120px;
-min-height:30px;
-border-bottom:3px solid black;
-}
-
+.blank{display:inline-flex;align-items:center;justify-content:center;min-width:120px;min-height:30px;border-bottom:3px solid black;}
 .jpHint{display:none;font-size:13px;}
 .jpHint.show{display:block;}
-
-#vocabBox{
-position:sticky;
-bottom:0;
-background:#f3f4f6;
-padding:10px;
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:6px;
-}
-
+#vocabBox{position:sticky;bottom:0;background:#f3f4f6;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
 #quiz{padding-bottom:140px;}
-
-.wordBox{
-padding:10px;
-border:1px solid #ccc;
-border-radius:10px;
-background:#fff;
-text-align:center;
-}
-
+.wordBox{padding:10px;border:1px solid #ccc;border-radius:10px;background:#fff;text-align:center;}
 .wordBox.used{opacity:0.3;}
-
 .correct{background:#86efac;}
 .wrong{background:#fca5a5;}
-
-.draggingClone{
-position:fixed;
-pointer-events:none;
-background:#f59e0b;
-color:white;
-padding:6px;
-border-radius:6px;
-}
-
-/* ✅ トースト追加 */
-#toast{
-position:fixed;
-bottom:30px;
-left:50%;
-transform:translateX(-50%);
-background:#333;
-color:#fff;
-padding:10px 16px;
-border-radius:10px;
-opacity:0;
-transition:0.3s;
-z-index:999;
-}
+.draggingClone{position:fixed;pointer-events:none;background:#f59e0b;color:white;padding:6px;border-radius:6px;}
+#counter{text-align:center;font-weight:600;margin-bottom:8px;}
+#toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 16px;border-radius:10px;opacity:0;transition:0.3s;}
 #toast.show{opacity:1;}
 </style>
 </head>
@@ -167,8 +67,6 @@ z-index:999;
 </div>
 
 <div id="quiz"></div>
-
-<!-- ✅ トースト -->
 <div id="toast"></div>
 
 <script>
@@ -178,7 +76,7 @@ let selectedQ=[],answers={},wrongList=[];
 let isDown=false,moved=false;
 let groupId=0,currentGroup=null;
 
-/* ✅ トースト関数（追加だけ） */
+/* トースト */
 function showToast(msg){
 let t=document.getElementById("toast");
 t.innerText=msg;
@@ -204,26 +102,15 @@ en.value=pairs.map(p=>p.en).join("\n");
 jp.value=pairs.map(p=>p.jp).join("\n");
 selectedQ.length?renderQuiz():render();
 }
-
-let p=new URLSearchParams(location.search);
-let u=p.get("data");
-if(u){
-let data=JSON.parse(LZString.decompressFromEncodedURIComponent(u));
-pairs=data.pairs||[];
-selections=data.selections||{};
-en.value=pairs.map(p=>p.en).join("\n");
-jp.value=pairs.map(p=>p.jp).join("\n");
-render();
-}
 };
 
-/* ✅ コピー（通知追加だけ） */
+/* コピー */
 function copyData(){
 navigator.clipboard.writeText(JSON.stringify({pairs,selections}));
 showToast("コピー成功");
 }
 
-/* ✅ ペースト（そのまま） */
+/* ペースト */
 async function pasteData(){
 let txt=await navigator.clipboard.readText();
 let d=JSON.parse(txt);
@@ -235,15 +122,14 @@ render();
 saveState();
 }
 
-/* ✅ URL（通知追加だけ） */
+/* URL */
 function shareURL(){
 let data=LZString.compressToEncodedURIComponent(JSON.stringify({pairs,selections}));
 navigator.clipboard.writeText(location.origin+location.pathname+"?data="+data);
 showToast("共有URLコピー成功");
 }
 
-/* 以降コードは一切変更なし */
-
+/* load */
 function load(){
 pairs=en.value.split("\n").map((e,i)=>({en:e,jp:jp.value.split("\n")[i]||""}));
 selections={};
@@ -251,6 +137,7 @@ render();
 saveState();
 }
 
+/* 選択 */
 document.addEventListener("pointerdown",e=>{
 if(!e.target.classList.contains("word"))return;
 isDown=true;moved=false;
@@ -278,8 +165,7 @@ saveState();
 
 function toggle(el){
 let l=+el.dataset.line,i=+el.dataset.i;
-if(!selections[l])selections[l]=[];
-let arr=selections[l];
+let arr=selections[l]||[];
 selections[l]=arr.some(x=>x.i===i)?arr.filter(x=>x.i!==i):[...arr,{i}];
 render();
 saveState();
@@ -287,12 +173,12 @@ saveState();
 
 function add(el){
 let l=+el.dataset.line,i=+el.dataset.i;
-if(!selections[l])selections[l]=[];
-let arr=selections[l].filter(x=>x.i!==i);
+let arr=(selections[l]||[]).filter(x=>x.i!==i);
 arr.push({i,gid:currentGroup});
 selections[l]=arr;
 }
 
+/* 描画 */
 function render(){
 let html="";
 pairs.forEach((p,line)=>{
@@ -320,6 +206,7 @@ selectArea.innerHTML=html;
 quiz.innerHTML="";
 }
 
+/* 問題生成 */
 function create(){
 answers={};selectedQ=[];
 
@@ -359,6 +246,7 @@ renderQuiz();
 saveState();
 }
 
+/* クイズ */
 let touchWord=null,clone=null;
 
 function renderQuiz(){
@@ -366,11 +254,13 @@ let vocab=selectedQ.map(q=>q.ans).sort(()=>Math.random()-0.5);
 let show=document.getElementById("showJP").checked;
 let html="";
 
+html+=`<div id="counter">回答済み：0 / ${selectedQ.length}</div>`;
+
 selectedQ.forEach((q,i)=>{
 html+=`
-<div class="card" onclick="this.querySelector('.jpHint')?.classList.toggle('show')">
+<div class="card">
 ${q.text.replace("______",`<span class="blank" data-i="${i}">______</span>`)}
-${show?`<div class="jpHint show">${q.jp}</div>`:`<div class="jpHint">${q.jp}</div>`}
+${show?`<div class="jpHint show">${q.jp}</div>`:``}
 </div>`;
 });
 
@@ -384,12 +274,13 @@ ontouchend="dragEnd(event)">
 ${v}</div>`;
 });
 html+=`</div>
-<button class="btn green" onclick="check()">答え合わせ</button>
-<button class="btn green" onclick="review()">復習問題</button>`;
+<button class="btn green" onclick="check()">答え合わせ</button>`;
 
 quiz.innerHTML=html;
+updateCounter();
 }
 
+/* ドラッグ */
 function dragStart(e,w){
 touchWord=w;
 clone=document.createElement("div");
@@ -406,6 +297,7 @@ clone.style.left=(t.clientX-30)+"px";
 clone.style.top=(t.clientY-20)+"px";
 }
 
+/* ✅ 同語句移動ロジック追加 */
 function dragEnd(e){
 if(!clone)return;
 let t=e.changedTouches[0];
@@ -413,6 +305,11 @@ let target=document.elementFromPoint(t.clientX,t.clientY);
 
 if(target&&target.classList.contains("blank")){
 let i=+target.dataset.i;
+
+Object.keys(answers).forEach(k=>{
+if(answers[k]===touchWord)answers[k]="";
+});
+
 answers[i]=touchWord;
 updateUI();
 saveState();
@@ -422,17 +319,22 @@ clone.remove();
 clone=null;
 }
 
+/* 更新 */
 function updateUI(){
 document.querySelectorAll(".blank").forEach((el,i)=>{
 el.innerText=answers[i]||"______";
 });
-
-document.querySelectorAll(".wordBox").forEach(el=>{
-let used=Object.values(answers).includes(el.innerText);
-el.classList.toggle("used",used);
-});
+updateCounter();
 }
 
+function updateCounter(){
+let count=Object.values(answers).filter(v=>v).length;
+let total=selectedQ.length;
+let c=document.getElementById("counter");
+if(c)c.innerText=`回答済み：${count} / ${total}`;
+}
+
+/* 判定 */
 function check(){
 wrongList=[];
 document.querySelectorAll(".blank").forEach((el,i)=>{
@@ -440,13 +342,6 @@ let ok=el.innerText===selectedQ[i].ans;
 el.classList.add(ok?"correct":"wrong");
 if(!ok)wrongList.push(selectedQ[i]);
 });
-saveState();
-}
-
-function review(){
-if(!wrongList.length)return;
-selectedQ=wrongList.sort(()=>Math.random()-0.5);
-renderQuiz();
 saveState();
 }
 
