@@ -7,24 +7,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{font-family:sans-serif;background:#f3f4f6;padding:10px;}
-.card{background:#fff;padding:15px;border-radius:12px;margin-bottom:15px;}
-textarea{width:100%;height:70px;margin-bottom:8px;}
-.btn{width:100%;padding:12px;border:none;border-radius:10px;margin-top:6px;color:white;}
-.blue{background:#3b82f6;}
+body{
+font-family:sans-serif;
+background:#f3f4f6;
+padding:12px;
+}
+
+h2{
+margin-bottom:14px;
+}
+
+/* 外枠 */
+.bigWrap{
+background:#e5e7eb;
+padding:16px;
+border-radius:16px;
+margin-bottom:20px;
+}
+
+/* カード */
+.card{
+background:#fff;
+padding:15px;
+border-radius:12px;
+margin-bottom:15px;
+}
+
+/* 入力 */
+textarea{
+width:100%;
+height:80px;
+padding:10px;
+margin-bottom:10px;
+border-radius:10px;
+border:1px solid #d1d5db;
+background:#f9fafb;
+}
+
+/* helper */
+.helper{
+font-size:14px;
+background:#d1d5db;
+padding:10px;
+border-radius:10px;
+margin-bottom:12px;
+}
+
+/* ボタン */
+.btn{
+width:100%;
+padding:14px;
+border:none;
+border-radius:12px;
+margin-top:8px;
+color:white;
+font-size:15px;
+}
+
+/* 色 */
+.blue{background:#4f7bd9;}
+.copyBtn{background:#4fb07f;}
+.pasteBtn{background:#6868d4;}
+.urlBtn{background:#4a90c2;}
 .orange{background:#f59e0b;}
 .green{background:#16a34a;}
-.urlBtn{background:#0ea5e9;}
-.helper{font-size:13px;color:#555;background:#f9fafb;padding:8px;border-radius:8px;margin-bottom:8px;}
 
-.line{margin-bottom:8px;}
-.word{display:inline-block;padding:6px;margin:2px;border-radius:6px;cursor:pointer;}
+/* 選択画面 */
+#selectArea{
+background:#e5e7eb;
+padding:15px;
+border-radius:12px;
+}
+
+.line{margin-bottom:14px;}
+
+.word{
+display:inline-block;
+padding:6px 8px;
+margin:2px;
+border-radius:8px;
+cursor:pointer;
+}
+
 .single{background:#fde047;}
 
-.group{background:#fb923c;color:white;margin:0;}
+.group{background:#fb923c;color:white;}
 .group.start{border-radius:8px 0 0 8px;}
 .group.end{border-radius:0 8px 8px 0;}
 
+/* 空欄 */
 .blank{
 display:inline-flex;
 align-items:center;
@@ -34,9 +105,7 @@ min-height:30px;
 border-bottom:3px solid black;
 }
 
-.jpHint{display:none;font-size:13px;}
-.jpHint.show{display:block;}
-
+/* 語群 */
 #vocabBox{
 position:sticky;
 bottom:0;
@@ -50,18 +119,20 @@ gap:6px;
 #quiz{padding-bottom:140px;}
 
 .wordBox{
-padding:8px;
+padding:10px;
 border:1px solid #ccc;
-border-radius:8px;
+border-radius:10px;
 background:#fff;
 text-align:center;
 }
 
 .wordBox.used{opacity:0.3;}
 
+/* 判定 */
 .correct{background:#86efac;}
 .wrong{background:#fca5a5;}
 
+/* ドラッグ */
 .draggingClone{
 position:fixed;
 pointer-events:none;
@@ -77,29 +148,31 @@ border-radius:6px;
 
 <h2>英語問題アプリ</h2>
 
-<div class="card">
+<!-- 入力 -->
+<div class="bigWrap">
+
 <div class="helper">
 英語と日本語を入力 → 選択 → 問題生成
 </div>
 
-<label>英語</label>
 <textarea id="en"></textarea>
-
-<label>日本語</label>
 <textarea id="jp"></textarea>
 
 <button class="btn blue" onclick="load()">選択開始</button>
+<button class="btn copyBtn" onclick="copyData()">コピー</button>
+<button class="btn pasteBtn" onclick="pasteData()">ペースト</button>
 <button class="btn urlBtn" onclick="shareURL()">URL生成</button>
+
 </div>
 
+<!-- 選択 -->
 <div class="card">
-<h3>選択</h3>
 <div id="selectArea"></div>
 </div>
 
+<!-- 問題 -->
 <div class="card">
-<h3>問題</h3>
-<label><input type="checkbox" id="showJP">日本語表示</label>
+<label><input type="checkbox" id="showJP"> 日本語表示</label>
 <button class="btn orange" onclick="create()">問題生成</button>
 </div>
 
@@ -112,10 +185,16 @@ let selectedQ=[],answers={},wrongList=[];
 let isDown=false,moved=false;
 let groupId=0,currentGroup=null;
 
-/* 入力 */
-function load(){
-pairs=en.value.split("\n").map((e,i)=>({en:e,jp:jp.value.split("\n")[i]||""}));
-selections={};
+/* コピー */
+function copyData(){
+navigator.clipboard.writeText(JSON.stringify({pairs,selections}));
+}
+
+async function pasteData(){
+let txt=await navigator.clipboard.readText();
+let d=JSON.parse(txt);
+pairs=d.pairs||[];
+selections=d.selections||{};
 render();
 }
 
@@ -123,6 +202,13 @@ render();
 function shareURL(){
 let data=LZString.compressToEncodedURIComponent(JSON.stringify({pairs,selections}));
 navigator.clipboard.writeText(location.origin+location.pathname+"?data="+data);
+}
+
+/* 読み込み */
+function load(){
+pairs=en.value.split("\n").map((e,i)=>({en:e,jp:jp.value.split("\n")[i]||""}));
+selections={};
+render();
 }
 
 /* 選択 */
@@ -172,8 +258,7 @@ let html="";
 pairs.forEach((p,line)=>{
 let words=p.en.split(" ");
 let arr=selections[line]||[];
-let map={};
-arr.forEach(x=>map[x.i]=x);
+let map={};arr.forEach(x=>map[x.i]=x);
 
 let row="";
 words.forEach((w,i)=>{
@@ -191,8 +276,10 @@ if(i===Math.max(...g))cls+=" end";
 
 row+=`<span class="${cls}" data-i="${i}" data-line="${line}">${w}</span>`;
 });
+
 html+=`<div class="line">${row}</div>`;
 });
+
 selectArea.innerHTML=html;
 quiz.innerHTML="";
 }
@@ -208,8 +295,8 @@ mark:(w.match(/[.,!?]/)||[""])[0]
 }));
 
 let items=selections[line]||[];
-let groups={};
 
+let groups={};
 items.forEach(x=>{
 if(x.gid!=null)(groups[x.gid]??=[]).push(x.i);
 else groups["s"+x.i]=[x.i];
@@ -217,14 +304,13 @@ else groups["s"+x.i]=[x.i];
 
 Object.values(groups).forEach(g=>{
 g.sort((a,b)=>a-b);
-
-let start=g[0], end=g.at(-1);
+let start=g[0],end=g[g.length-1];
 
 let text=words.map((w,i)=>{
 if(i===start)return"______";
-if(i>start && i<=end)return"";
+if(i>start&&i<=end)return"";
 return w.word+w.mark;
-}).filter(v=>v!==null).join(" ").replace(/\s+/g," ").trim();
+}).join(" ").replace(/\s+/g," ").trim();
 
 let ans=g.map(i=>words[i].word).join(" ");
 selectedQ.push({text,ans,jp:p.jp});
@@ -241,6 +327,7 @@ let touchWord=null,clone=null;
 function renderQuiz(){
 let vocab=selectedQ.map(q=>q.ans).sort(()=>Math.random()-0.5);
 let show=document.getElementById("showJP").checked;
+
 let html="";
 
 selectedQ.forEach((q,i)=>{
@@ -280,7 +367,6 @@ document.body.appendChild(clone);
 
 function dragMove(e){
 if(!clone)return;
-e.preventDefault();
 let t=e.touches[0];
 clone.style.left=(t.clientX-30)+"px";
 clone.style.top=(t.clientY-20)+"px";
@@ -294,7 +380,6 @@ let target=document.elementFromPoint(t.clientX,t.clientY);
 if(target&&target.classList.contains("blank")){
 let i=+target.dataset.i;
 
-/* 上書き処理 */
 Object.keys(answers).forEach(k=>{
 if(answers[k]===touchWord)answers[k]=undefined;
 });
@@ -331,7 +416,7 @@ if(!ok)wrongList.push(selectedQ[i]);
 /* 復習 */
 function review(){
 if(!wrongList.length)return;
-selectedQ=wrongList.sort(()=>Math.random()-0.5);
+selectedQ=wrongList;
 renderQuiz();
 }
 
