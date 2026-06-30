@@ -25,6 +25,8 @@ textarea{width:100%;height:70px;margin-bottom:8px;}
 .group.start{border-radius:8px 0 0 8px;}
 .group.end{border-radius:0 8px 8px 0;}
 .blank{display:inline-block;min-width:80px;border-bottom:3px solid black;}
+.jpHint{display:none;font-size:13px;color:#555;margin-top:4px;}
+.jpHint.show{display:block;}
 #vocabBox{position:sticky;bottom:0;background:#f3f4f6;padding:10px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
 .wordBox{padding:8px;border:1px solid #ccc;border-radius:8px;text-align:center;background:#fff;}
 .wordBox.used{opacity:0.3;}
@@ -62,7 +64,7 @@ URLやコピーで保存できます
 </div>
 
 <div class="card">
-<h3>問題</h3>
+<label><input type="checkbox" id="showJP">日本語表示</label>
 <button class="btn orange" onclick="create()">問題生成</button>
 </div>
 
@@ -75,7 +77,6 @@ let selectedQ=[],answers={};
 let isDown=false,moved=false;
 let groupId=0,currentGroup=null;
 
-/* ===== URL復元 ===== */
 window.onload=()=>{
 let p=new URLSearchParams(location.search);
 let d=p.get("data");
@@ -89,7 +90,6 @@ render();
 }
 };
 
-/* ✅ コピー・ペースト追加（これだけ） */
 function copyData(){
 navigator.clipboard.writeText(JSON.stringify({pairs,selections}));
 }
@@ -104,7 +104,6 @@ jp.value=pairs.map(p=>p.jp).join("\n");
 render();
 }
 
-/* ===== URL生成 ===== */
 function shareURL(){
 let data=LZString.compressToEncodedURIComponent(JSON.stringify({pairs,selections}));
 navigator.clipboard.writeText(location.origin+location.pathname+"?data="+data);
@@ -116,7 +115,6 @@ selections={};
 render();
 }
 
-/* ===== 選択 ===== */
 document.addEventListener("pointerdown",e=>{
 if(!e.target.classList.contains("word"))return;
 isDown=true;moved=false;
@@ -162,7 +160,6 @@ arr.push({i,gid:currentGroup});
 selections[l]=arr;
 }
 
-/* ===== 描画 ===== */
 function render(){
 let html="";
 pairs.forEach((p,line)=>{
@@ -192,7 +189,6 @@ html+=`<div class="line">${row}</div>`;
 selectArea.innerHTML=html;
 }
 
-/* ===== 問題生成 ===== */
 function create(){
 answers={};selectedQ=[];
 
@@ -218,7 +214,7 @@ return w;
 }).join(" ");
 
 let ans=g.map(i=>words[i]).join(" ");
-selectedQ.push({text,ans});
+selectedQ.push({text,ans,jp:p.jp});
 });
 });
 
@@ -226,11 +222,11 @@ selectedQ=selectedQ.sort(()=>Math.random()-0.5).slice(0,10);
 renderQuiz();
 }
 
-/* ===== ドラッグ ===== */
 let touchWord=null,clone=null;
 
 function renderQuiz(){
 let vocab=selectedQ.map(q=>q.ans).sort(()=>Math.random()-0.5);
+let show=document.getElementById("showJP").checked;
 let html="";
 
 selectedQ.forEach((q,i)=>{
@@ -239,6 +235,7 @@ html+=`
 ${i+1}.
 ${q.text.replace("______",
 `<span class="blank" data-i="${i}">______</span>`)}
+${show?`<div class="jpHint show">${q.jp}</div>`:""}
 </div>`;
 });
 
