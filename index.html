@@ -263,10 +263,20 @@ saveState();
 }
 
 /* クイズ */
+
 let touchWord=null,clone=null;
+let touchId=null;
+let vocabData=[];
 
 function renderQuiz(){
-let vocab=selectedQ.map(q=>q.ans).sort(()=>Math.random()-0.5);
+
+let vocab=selectedQ.map((q,index)=>({
+id:index,
+word:q.ans
+})).sort(()=>Math.random()-0.5);
+
+vocabData=vocab;
+
 let show=document.getElementById("showJP").checked;
 let html="";
 
@@ -279,15 +289,18 @@ ${show?`<div class="jpHint show">${q.jp}</div>`:""}
 });
 
 /* ✅ vocabBox */
+
 html+=`<div id="vocabBox">`;
 
 vocab.forEach(v=>{
+
 html+=`
 <div class="wordBox"
-ontouchstart="dragStart(event,'${v}')"
+data-id="${v.id}"
+ontouchstart="dragStart(event,${v.id})"
 ontouchmove="dragMove(event)"
 ontouchend="dragEnd(event)">
-${v}</div>`;
+${v.word}</div>`;
 });
 
 /* ✅ ここで閉じる（重要） */
@@ -307,11 +320,17 @@ updateUI();
 }
 
 /* ドラッグ */
-function dragStart(e,w){
-touchWord=w;
+
+function dragStart(e,id){
+
+touchId=id;
+
+let item=vocabData.find(v=>v.id===id);
+touchWord=item.word;
+
 clone=document.createElement("div");
 clone.className="draggingClone";
-clone.innerText=w;
+clone.innerText=touchWord;
 document.body.appendChild(clone);
 }
 
@@ -332,10 +351,16 @@ if(target&&target.classList.contains("blank")){
 let i=+target.dataset.i;
 
 Object.keys(answers).forEach(k=>{
-if(answers[k]===touchWord)answers[k]="";
+if(answers[k] && answers[k].id===touchId){
+answers[k]=null;
+}
 });
 
-answers[i]=touchWord;
+answers[i]={
+id:touchId,
+word:touchWord
+};
+
 updateUI();
 saveState();
 }
@@ -347,13 +372,18 @@ clone=null;
 /* 更新 */
 function updateUI(){
 document.querySelectorAll(".blank").forEach((el,i)=>{
-el.innerText=answers[i]||"______";
+el.innerText=answers[i]?.word || "______";
 });
 
 /* ✅ ここ追加 */
+
+let usedIds = Object.values(answers)
+.filter(v=>v)
+.map(v=>v.id);
+
 document.querySelectorAll(".wordBox").forEach(el=>{
-let used = Object.values(answers).includes(el.innerText);
-el.classList.toggle("used", used);
+let id = Number(el.dataset.id);
+el.classList.toggle("used", usedIds.includes(id));
 });
 
 updateCounter();
@@ -379,7 +409,7 @@ if(!ok) return;
 
 wrongList=[];
 document.querySelectorAll(".blank").forEach((el,i)=>{
-let ans=answers[i]||"";
+let ans=answers[i]?.word || "";
 let ok=ans===selectedQ[i].ans;
 el.classList.add(ok?"correct":"wrong");
 if(!ok) wrongList.push(selectedQ[i]);
@@ -388,6 +418,7 @@ saveState();
 }
 
 /* 復習 */
+
 function review(){
 if(!wrongList.length){
 showToast("復習する問題がありません");
@@ -396,6 +427,7 @@ return;
 selectedQ=wrongList.sort(()=>Math.random()-0.5);
 answers={};
 renderQuiz();
+saveState();
 }
 
 </script>
